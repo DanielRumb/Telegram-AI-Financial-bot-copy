@@ -1,0 +1,1859 @@
+{
+  "name": "Telegram AI-Financial bot copy",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -704,
+        -192
+      ],
+      "id": "f3daf278-f221-4d0c-84c8-5fc93e5b965d",
+      "name": "Receive Message",
+      "webhookId": "9ae85605-0814-4853-96b5-def369f6a366",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.message.chat.id }}",
+        "text": "=Привет! Укажите ваш месячный бюджет одним числом (например: 50000)",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -480
+      ],
+      "id": "d866cb97-2c92-4f9c-baa5-542d981ba3e0",
+      "name": "Send a text message",
+      "webhookId": "af8bf126-65ae-4265-8683-12d246c04648",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3ed1558f-4fc0-4f29-a769-d567c86131e7",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/start",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": "={{ false }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -528,
+        -192
+      ],
+      "id": "766544a0-78f2-4bec-bcdc-e6e81bd170de",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7b109499-eb41-4803-883e-7f98c1f0d40c",
+              "name": "message.chat.id",
+              "value": "={{ $('Receive Message').item.json.message.chat.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -272,
+        -464
+      ],
+      "id": "057dc509-553e-4f2d-8dfe-6bcfc46732d1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ String($json.chat_id) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -464
+      ],
+      "id": "53d7cf87-cba2-4444-8436-a01e685ee4e3",
+      "name": "Redis",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": false,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.propertyName }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    },
+                    "id": "ea9f6ce1-f283-4ada-ad93-4d0af7ee3135"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        -464
+      ],
+      "id": "7a7361d1-140b-41ed-94b5-7ab5c5656657",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ String($('Edit Fields').item.json.message.chat.id) }}",
+        "value": "set_limit",
+        "expire": true,
+        "ttl": 3600
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        816,
+        -480
+      ],
+      "id": "4d74739b-8ead-48fe-b50d-deadaa52eb92",
+      "name": "Redis1",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ String($json.callback_query.from.id) }}",
+        "value": "awaiting_input"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        464,
+        160
+      ],
+      "id": "d0107431-8806-44f0-9f0b-0e28aa4ffdb5",
+      "name": "Redis2",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.callback_query.from.id }}",
+        "text": "Как мне к вам обращаться?",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        160
+      ],
+      "id": "9d790372-ec0e-4a3a-a728-337238666564",
+      "name": "Send a text message1",
+      "webhookId": "131e0608-40b0-41a9-bf49-6ac6e3b47d67",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "key": "={{ String($json.message.chat.id) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        256,
+        816
+      ],
+      "id": "fd0c37b3-a73d-46ac-a608-c84a154740f2",
+      "name": "Redis3",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.propertyName }}",
+                    "rightValue": "awaiting_input",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5c7668e5-a48e-4c7c-a55d-eb57e08a0b30"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b6b59f90-35d8-4449-aa97-20f93565ac65",
+                    "leftValue": "={{ $json.propertyName }}",
+                    "rightValue": "set_limit",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        800
+      ],
+      "id": "0b201146-8e62-4649-9bd4-78883badd7a8",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6aec6dc2-6e0b-437f-ae88-82d018c0f9e9",
+              "leftValue": "={{ $json.callback_query }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        416
+      ],
+      "id": "fdd76986-b8fb-4628-a16b-11958a5309cd",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Receive Message').item.json.message.text }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Ты - парсер трат. Пользователь присылает сообщение вида \"Категория Сумма\" (например: \"Продукты 1500\"). Извлеки категорию расхода и сумму. Верни только структурированные данные: category (строка) и amount (число)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1056,
+        1024
+      ],
+      "id": "ce3bf8c7-5820-42f9-b503-8bf7d3a6b945",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        1216
+      ],
+      "id": "06eeaa01-9b83-471c-8614-aff04529cf38",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "Qut1U05ljKyE9XAi",
+          "name": "Groq account 72"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.message.chat.id }}",
+        "text": "=Приятно познакомиться, {{ $('Receive Message').item.json.message.text }}! Теперь вы можете задать любой вопрос моему AI-помощнику.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        656
+      ],
+      "id": "beec0a67-ebad-4c16-b29f-bb3f2ec6c114",
+      "name": "Send a text message2",
+      "webhookId": "8e788c4f-c2c6-4d2f-838b-7b1ba605efbe",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=user_data:{{ $('Receive Message').item.json.message.chat.id }}",
+        "value": "={{ { \"name\": $('Receive Message').item.json.message.text } }}",
+        "keyType": "hash"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        848,
+        656
+      ],
+      "id": "26968ebc-a7e6-4b83-a783-818b3f0ac4f2",
+      "name": "Redis4",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Receive Message').item.json.message.chat.id.toString() }}",
+        "value": "base"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        656
+      ],
+      "id": "f16e4822-66e8-40e8-aa0d-82f77416fda5",
+      "name": "Redis5",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.message.chat.id }}",
+        "text": "=✅ Записано: {{ $('AI Agent').item.json.output.category }} — {{ $('AI Agent').item.json.output.amount }} руб.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        1024
+      ],
+      "id": "d50f6f43-4a70-4c46-bac8-7432189773d3",
+      "name": "Send a text message3",
+      "webhookId": "1daa47a2-62d9-431a-b54a-6bd13fb666c5",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "name",
+        "key": "=user_data:{{ $('Receive Message').item.json.message.chat.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        848,
+        1024
+      ],
+      "id": "71b4ef19-2276-4b5a-9782-d3fdc879e90d",
+      "name": "Redis6",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1807259319,
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=1807259319"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('Receive Message').item.json.message.chat.id }}",
+            "category": "={{ $json.output.category }}",
+            "amount": "={{ $json.output.amount }}",
+            "date": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "displayName": "category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "displayName": "amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1376,
+        1024
+      ],
+      "id": "58d321cb-a1ab-4721-b2f2-17b336351917",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "=user_data:{{ $('Receive Message').item.json.message.chat.id }}",
+        "value": "={{ { \"budget_limit\": $('Receive Message').item.json.message.text } }}",
+        "keyType": "hash"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        848,
+        816
+      ],
+      "id": "eba5298f-eb1e-4a0e-921c-07f7f88f487c",
+      "name": "Redis8",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "set",
+        "key": "={{ $('Receive Message').item.json.message.chat.id.toString() }}",
+        "value": "base"
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        816
+      ],
+      "id": "a2e2dfdc-030c-4fb5-abdf-9ec74c85d5d4",
+      "name": "Redis9",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.message.chat.id }}",
+        "text": "=Бюджет установлен: {{ $('Receive Message').item.json.message.text }} руб. Теперь отправляйте траты в формате \"Категория Сумма\", например: \"Продукты 1500\"",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        816
+      ],
+      "id": "8db6bb58-3ae2-4984-ace2-c7b88932cb02",
+      "name": "Send a text message4",
+      "webhookId": "8e788c4f-c2c6-4d2f-838b-7b1ba605efbe",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"category\": \"string\",\n  \"amount\": 0\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        1216
+      ],
+      "id": "67449414-b409-4278-995d-12815d7dde17",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d40131c7-3fcc-4969-b5a4-53c2f3ee3e07",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/status",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "08978c9b-2b41-4799-97c9-652e793eb6a5",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/report",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -272,
+        80
+      ],
+      "id": "164784a2-0b6d-4949-b68e-656612a8152e",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/status",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c7cfde8b-1a03-40e1-a63a-6e9767264b87"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "d4831b74-0c80-4289-a641-4f3f4ccd9a32",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/report",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        -112
+      ],
+      "id": "a31fe16e-50d4-49dd-a247-bedb23931cc9",
+      "name": "Switch2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1807259319,
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=1807259319"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chat_id",
+              "lookupValue": "={{ $('Receive Message').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -256
+      ],
+      "id": "e449a74b-6b61-4560-844d-8a15a30ab334",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "budget_limit",
+        "key": "=user_data:{{ $('Receive Message').item.json.message.chat.id }}",
+        "keyType": "hash",
+        "options": {},
+        "valueIsJSON": false
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        464,
+        -256
+      ],
+      "id": "46ce73b5-cb68-4271-82fb-f2cad0b8ec10",
+      "name": "Redis10",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const expenses = $('Get row(s) in sheet').all().map(item => item.json);\nconst total = expenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);\nconst limit = Number($json.budget_limit.budget_limit || 0);\n\nreturn {\n  json: {\n    total,\n    limit,\n    remaining: limit - total\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        -256
+      ],
+      "id": "1d7b6b56-5f23-4681-8fed-10a11d0b3cfa",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.message.chat.id }}",
+        "text": "=📊 Статус бюджета: Лимит: {{ $json.limit }} руб. Потрачено: {{ $json.total }} руб. Остаток: {{ $json.remaining }} руб.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -256
+      ],
+      "id": "45b8490f-4346-4821-bdd2-a1ddf17f9abe",
+      "name": "Send a text message5",
+      "webhookId": "d778fd47-f2fa-4118-9168-9dab90cd3942",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1807259319,
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=1807259319"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chat_id",
+              "lookupValue": "={{ $('Receive Message').item.json.message.chat.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        240,
+        -16
+      ],
+      "id": "41c39b05-11f8-4acb-b901-170b7be39fc8",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const expenses = $input.all().map(item => item.json);\nconst byCategory = {};\n\nfor (const e of expenses) {\n  const cat = e.category || 'Без категории';\n  byCategory[cat] = (byCategory[cat] || 0) + Number(e.amount || 0);\n}\n\nconst lines = Object.entries(byCategory)\n  .map(([cat, sum]) => `• ${cat}: ${sum} руб.`)\n  .join('\\n');\n\nreturn { json: { reportText: lines || 'Пока нет трат' } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        -16
+      ],
+      "id": "c1de06b6-1905-47c7-978a-e0274cae303f",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.message.chat.id }}",
+        "text": "={{ \"📈 Отчёт по категориям:\\n\" + $json.reportText }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "Совет от ИИ",
+                    "additionalFields": {
+                      "callback_data": "ai_advice"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        -16
+      ],
+      "id": "97278b99-aba4-4257-ae62-4cb3fbe5f64d",
+      "name": "Send a text message6",
+      "webhookId": "a1fa28d9-4cd5-4c77-bb9f-fe73274612a0",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "f32f37a2-22b4-42e0-ada7-98bc835fc9e2",
+                    "leftValue": "={{ $json.callback_query.data }}",
+                    "rightValue": "start_chat",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        256
+      ],
+      "id": "7f402f7e-8ef9-414e-ad3f-ce18fdc00e9b",
+      "name": "Switch3"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1807259319,
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=1807259319"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chat_id",
+              "lookupValue": "={{ $json.callback_query.from.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        464,
+        368
+      ],
+      "id": "5e877a46-ed65-4533-8d64-4d9550cbabae",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "propertyName": "budget_limit",
+        "key": "=user_data:{{ $('Receive Message').item.json.callback_query.from.id }}",
+        "keyType": "hash",
+        "options": {},
+        "valueIsJSON": false
+      },
+      "type": "n8n-nodes-base.redis",
+      "typeVersion": 1,
+      "position": [
+        640,
+        368
+      ],
+      "id": "cad1b4b2-1906-4d1d-a4d9-19274cd5f82c",
+      "name": "Redis7",
+      "credentials": {
+        "redis": {
+          "id": "UWxdPRtJea1kjKri",
+          "name": "Redis account 20168"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Лимит: {{ $json.budget_limit.budget_limit }} руб. Траты: {{ JSON.stringify($('Get row(s) in sheet2').all().map(i => ({category: i.json.category, amount: i.json.amount}))) }}",
+        "options": {
+          "systemMessage": "Ты - финансовый советник. Проанализируй траты пользователя относительно его бюджета и дай 2-3 кратких практичных совета по оптимизации расходов."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        848,
+        368
+      ],
+      "id": "fa9ad54a-3f6e-4b10-b14c-5034938a13de",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        848,
+        512
+      ],
+      "id": "ae0e7952-6b4c-440e-81fe-92cb913ae2de",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "Qut1U05ljKyE9XAi",
+          "name": "Groq account 72"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Receive Message').item.json.callback_query.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1552,
+        368
+      ],
+      "id": "d450747f-7654-4aeb-a169-f6002999437c",
+      "name": "Send a text message7",
+      "webhookId": "49ad708d-16ec-4906-8320-d605d5998ed8",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "chat_id": "={{ $('Receive Message').item.json.message.chat.id }}",
+            "budget_limit": "={{ $('Receive Message').item.json.message.text }}"
+          },
+          "matchingColumns": [
+            "chat_id"
+          ],
+          "schema": [
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "budget_limit",
+              "displayName": "budget_limit",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1056,
+        816
+      ],
+      "id": "e1a505be-b294-40cf-bc1e-1f3c6893cbee",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -704,
+        1200
+      ],
+      "id": "de07fd4a-bd34-44af-ad9c-42672531a2a9",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Users",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -544,
+        1200
+      ],
+      "id": "79dff7d8-de71-4071-85ae-4a6f48c1da20",
+      "name": "Get row(s) in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -336,
+        1200
+      ],
+      "id": "8e4d1920-1e38-4ec0-9555-bec488f77d31",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds",
+          "mode": "list",
+          "cachedResultName": "Financial AI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1807259319,
+          "mode": "list",
+          "cachedResultName": "Expenses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/19eK_XRNg0bvXI6OdxIr1n-zEflLXbzdpHkmzVYnSBds/edit#gid=1807259319"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "chat_id",
+              "lookupValue": "={{ $json.chat_id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -128,
+        1344
+      ],
+      "id": "56f626a2-1020-410e-b67a-b312f0fb1c91",
+      "name": "Get row(s) in sheet4",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0nozAKeeq5hfTEcj",
+          "name": "Google Sheets account 8062146"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const chatId = $('Loop Over Items').item.json.chat_id;\nconst allExpenses = $input.all().map(item => item.json);\n\nconst yesterday = new Date();\nyesterday.setDate(yesterday.getDate() - 1);\nconst yesterdayStr = yesterday.toISOString().split('T')[0];\n\nconst yesterdayExpenses = allExpenses.filter(e => {\n  const expDate = new Date(e.date).toISOString().split('T')[0];\n  return expDate === yesterdayStr;\n});\n\nconst total = yesterdayExpenses.reduce((sum, e) => sum + Number(e.amount || 0), 0);\nconst lines = yesterdayExpenses.map(e => `• ${e.category}: ${e.amount} руб.`).join('\\n');\n\nreturn {\n  json: {\n    chat_id: chatId,\n    total,\n    lines: lines || 'Вчера трат не было'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        80,
+        1344
+      ],
+      "id": "2928e395-00ec-4113-a010-38946784f9a6",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ \"📅 Отчёт за вчера:\\n\" + $json.lines + \"\\n\\nИтого: \" + $json.total + \" руб.\" }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        288,
+        1344
+      ],
+      "id": "8f14eb79-839c-4263-bf22-c75d3ecb36fc",
+      "name": "Send a text message8",
+      "webhookId": "6b8e86c1-41b4-4144-99f8-579843bb30f4",
+      "credentials": {
+        "telegramApi": {
+          "id": "ofNeSo8wbgITOMoH",
+          "name": "Telegram account 1565"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Receive Message": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Redis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Redis1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Redis1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis3": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Switch3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Redis4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Redis6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis4": {
+      "main": [
+        [
+          {
+            "node": "Redis5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis5": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message2": {
+      "main": [
+        []
+      ]
+    },
+    "Redis6": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message3": {
+      "main": [
+        [],
+        []
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis8": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis9": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Switch2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch2": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Redis10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis10": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Send a text message5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch3": {
+      "main": [
+        [
+          {
+            "node": "Redis2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Redis7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redis7": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Redis9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get row(s) in sheet4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet4": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message8": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "83b5460a-8c24-4b20-bf5f-b666c8862716",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f4300700b5a89163b88ad6a908ff9e3076c705e8b03a3f40f03ff2f29f7e4289"
+  },
+  "nodeGroups": [],
+  "id": "QpSFun07fOoTF0yO",
+  "tags": []
+}
